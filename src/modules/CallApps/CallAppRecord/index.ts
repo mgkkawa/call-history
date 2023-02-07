@@ -11,5 +11,4 @@ export const callAppRecord = async (record: KintoneRecord, appId: number | strin
       obj.value = undefined
     }
   }
-  console.log(fields)
 }

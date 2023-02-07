@@ -1,69 +1,37 @@
-import { Button, TextField } from '@mui/material'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ConfigProps } from '../modules'
-import { AppsSelect, FieldsSelect } from './components'
-import { thisAppId } from './config'
+import { AppsSelect, FormSubmitRow, SettingsForm } from './components'
 
 const PLUGIN_ID = kintone.$PLUGIN_ID
-const checkFields = ['historyAppId', 'editMode', 'editCheckField', 'editCheckValue']
+
+const FormRow = () => {
+  return <div style={{ marginTop: 20 }} />
+}
 
 const App = () => {
   const [config, setConfig] = useState<ConfigProps>(kintone.plugin.app.getConfig(PLUGIN_ID))
   const [appId, setAppId] = useState<number | string>(config.historyAppId ? config.historyAppId : '')
-  const [field, setField] = useState<string>(config.editCheckField ? config.editCheckField : '')
-  const [value, setValue] = useState<string>(config.editCheckValue ? config.editCheckValue : '')
+  const [isSettings, setIsSettings] = useState<boolean>(config.isSettings ?? false)
 
   // config画面描画時設定
-  useEffect(() => {
-    if (config.historyAppId) setAppId(config.historyAppId)
-    setConfig(config)
-  }, [])
+  useEffect(() => {}, [])
 
   // appIdが更新されると
   useEffect(() => {
     config.historyAppId = appId
-    config.editCheckField = field
-    config.editCheckValue = value
     setConfig(config)
-  }, [appId, field, value])
+  }, [appId])
 
   return (
     <>
-      <h2>コール履歴アプリの設定。</h2>
+      <h3>コール履歴アプリ設定</h3>
+      <p style={{ marginTop: 10 }}>各種設定をお願いします。</p>
+      <FormRow />
       <AppsSelect setFunction={setAppId} value={appId} />
-      <FieldsSelect setFunction={setField} value={field} appId={useContext(thisAppId)}></FieldsSelect>
-      <div style={{ marginTop: 20 }}>
-        <TextField
-          size='small'
-          id='editField'
-          label='編集チェック用フィールド'
-          variant='outlined'
-          value={field}
-          onChange={e => setField(e.target.value)}
-        />
-        <TextField
-          size='small'
-          id='editField'
-          label='編集チェック用フィールドの値'
-          variant='outlined'
-          value={value}
-          onChange={e => setValue(e.target.value)}
-        />
-      </div>
-      <div style={{ marginTop: 30 }}>
-        <Button variant='outlined' style={{ marginRight: 25, minWidth: 150 }} size='large'>
-          キャンセル
-        </Button>
-        <Button
-          variant='contained'
-          style={{ minWidth: 150 }}
-          size='large'
-          onClick={() => {
-            kintone.plugin.app.setConfig(config)
-          }}>
-          保存
-        </Button>
-      </div>
+      <FormRow />
+      <SettingsForm setFunction={setIsSettings} checked={isSettings} />
+      <FormRow />
+      <FormSubmitRow config={config} />
     </>
   )
 }

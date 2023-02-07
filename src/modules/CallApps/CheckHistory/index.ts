@@ -1,7 +1,8 @@
 import Swal from 'sweetalert2'
-import { getFields, getKintoneRestAPIClient } from '../../kintoneRESTAPI'
+import { getKintoneRestAPIClient } from '../../kintoneRESTAPI'
 import type { KintoneRecord } from '../../../types'
 import { DELETE_TYPES } from '../enviroment'
+import { checkAppFields } from '..'
 
 const UPDATE_KEY = 'レコード番号'
 
@@ -22,7 +23,7 @@ const getQuery = (record: any, fieldCd: string) => {
 
 const checkFields = ['企業コード', '日付', '最終架電ユーザー']
 export const checkCallHistory = async (record: KintoneRecord, appId: number | string) => {
-  const fields = await getFields(appId)
+  const fields = await checkAppFields(appId)
   for (let field in fields) {
     const obj = fields[field]
     if (field in record) {

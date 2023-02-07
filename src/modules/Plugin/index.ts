@@ -1,8 +1,6 @@
 export type ConfigProps = {
   historyAppId?: number | string
-  editMode?: boolean
-  editCheckField?: string
-  editCheckValue?: string
+  isSettings?: boolean
 }
 export const getConfig = (pluginId: string) => {
   const config = kintone.plugin.app.getConfig(pluginId)

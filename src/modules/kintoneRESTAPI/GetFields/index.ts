@@ -1,24 +1,14 @@
 import { getKintoneRestAPIClient } from '../'
-
-const DELETE_TYPES = [
-  'CATEGORY',
-  'STATUS',
-  'RECORD_NUMBER',
-  'CREATED_TIME',
-  'CREATOR',
-  'STATUS_ASSIGNEE',
-  'UPDATED_TIME',
-  'MODIFIER',
-]
+import { DELETE_TYPES } from '../kintoneEnviroments'
 
 export const getFields = async (appId: number | string) => {
   const client = await getKintoneRestAPIClient()
   const res = await client.app.getFormFields({ app: appId })
   const properties = res.properties
-  const result: Record<string, any> = {}
+  const result = []
   for (let field in properties) {
     const obj = properties[field]
-    if (!DELETE_TYPES.includes(obj.type)) result[field] = { type: obj.type }
+    if (!DELETE_TYPES.includes(obj.type)) result.push(obj)
   }
   return result
 }
