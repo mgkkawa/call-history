@@ -1,6 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import ReactDOM from 'react-dom/client'
+import App from './App'
 
 const container = document.getElementById('root') as HTMLElement
 const root = ReactDOM.createRoot(container)
-root.render(<React.StrictMode> </React.StrictMode>)
+export const thisAppId = React.createContext(String(kintone.app.getId() as number))
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
