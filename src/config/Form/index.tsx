@@ -35,11 +35,20 @@ export default function Form(props: PluginConfig) {
   }, [])
 
   // 設定の検証ルールを設定
-  const validationRules = {
-    historyAppId: {
-      required: 'コール履歴アプリの設定は必須です。',
-    },
-  }
+  const validationRules = useMemo(() => {
+    const NEED_MESSAGE = 'の設定は必須です。'
+    return {
+      historyAppId: {
+        required: 'コール履歴アプリ' + NEED_MESSAGE,
+      },
+      uniqueKey: {
+        required: 'ユニークキーフィールド' + NEED_MESSAGE,
+      },
+      dateField: {
+        reqquired: '日付フィールド' + NEED_MESSAGE,
+      },
+    }
+  }, [])
 
   // 初回描画時の処理
   useEffect(() => {
@@ -67,6 +76,7 @@ export default function Form(props: PluginConfig) {
       <Controller
         name='historyAppId'
         control={control}
+        rules={validationRules.historyAppId}
         render={({ field, fieldState }) => (
           <FormControl error={fieldState.invalid}>
             <InputLabel id='history-app-id-label'>コール履歴アプリ</InputLabel>

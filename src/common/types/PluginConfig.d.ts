@@ -4,4 +4,4 @@ declare type PluginConfig = {
   dateField: string
 }
 
-declare type PluginConfigKey = 'historyAppId' | 'companyIdField' | 'dateField'
+declare type PluginConfigKey = 'historyAppId' | 'uniqueKey' | 'dateField'
