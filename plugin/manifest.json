@@ -14,10 +14,12 @@
     "required_params": []
   },
   "name": {
-    "en": "call-history"
+    "en": "call-history",
+    "ja": "コール履歴プラグイン"
   },
   "description": {
-    "en": "call-history"
+    "en": "call-history",
+    "ja": "コール履歴プラグイン"
   },
   "mobile": {
     "js": ["js/mobile.js"],
