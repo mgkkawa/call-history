@@ -38,7 +38,9 @@ export async function getLayout(appId: string | number) {
 
 export async function getAppFields(appId: string | number) {
   const fields = await getForm(appId)
+  console.log(fields)
   const layout = await getLayout(appId)
+  console.log(layout)
   const appFields = layout
     .map(field => {
       if (!('code' in field)) return null
@@ -46,6 +48,5 @@ export async function getAppFields(appId: string | number) {
       return fields[code]
     })
     .filter(field => Boolean(field))
-  console.log(appFields)
   return appFields
 }

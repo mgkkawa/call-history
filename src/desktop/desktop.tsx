@@ -1,24 +1,13 @@
-<<<<<<< HEAD
-import { checkCallHistory, getConfig } from '../modules'
-import type { KintoneRecordEvent } from '../types'
-=======
-import { checkCallHistory, getConfig } from 'common'
->>>>>>> 76c5a3651d5be30dcad36ad189c828ccb58fe26f
+import { getConfig } from 'common'
 
 const config = getConfig(kintone.$PLUGIN_ID)
-const { historyAppId } = config
+const { appId, unique, date, setFields } = config
 
-<<<<<<< HEAD
-kintone.events.on('app.record.detail.show', async (event: KintoneRecordEvent) => {})
-kintone.events.on('app.record.edit.show', async (event: KintoneRecordEvent) => {
-  return event
-})
 kintone.events.on('app.record.edit.submit.success', async event => {
-  if (!historyAppId) return event
+  if (!appId) return event
 
-=======
-kintone.events.on('app.record.edit.submit.success', async event => {
-  if (!historyAppId) return event
->>>>>>> 76c5a3651d5be30dcad36ad189c828ccb58fe26f
-  await checkCallHistory(event.record, historyAppId)
+  const { record } = event
+
+  const uniqueKey = record[unique.this].value
+  const dateField = record[date.this].value
 })

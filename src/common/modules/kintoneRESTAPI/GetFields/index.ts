@@ -1,7 +1,3 @@
-<<<<<<< HEAD:src/modules/kintoneRESTAPI/GetFields/index.ts
-import { getKintoneRestAPIClient } from '../'
-import { DELETE_TYPES } from '../kintoneEnviroments'
-=======
 import { getKintoneRestAPIClient } from 'common'
 
 const DELETE_TYPES = [
@@ -14,7 +10,6 @@ const DELETE_TYPES = [
   'UPDATED_TIME',
   'MODIFIER',
 ]
->>>>>>> 76c5a3651d5be30dcad36ad189c828ccb58fe26f:src/common/modules/kintoneRESTAPI/GetFields/index.ts
 
 export const getFields = async (appId: number | string) => {
   const client = await getKintoneRestAPIClient()

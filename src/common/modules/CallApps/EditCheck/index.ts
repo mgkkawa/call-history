@@ -1,7 +1,6 @@
 import Swal from 'sweetalert2'
-import { ConfigProps, KintoneRecordEvent } from 'common'
 
-export const editCheck = async (event: KintoneRecordEvent, config: ConfigProps) => {
+export const editCheck = async (event: KintoneRecordEvent, config: Plugin.Config) => {
   const record = event.record
   const field = config.editCheckField as string
   const check = record[field]

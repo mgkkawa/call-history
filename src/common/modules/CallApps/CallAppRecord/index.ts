@@ -1,6 +1,6 @@
-import { getFields, KintoneRecord } from 'common'
+import { getFields } from 'common'
 
-export const callAppRecord = async (record: KintoneRecord, appId: number | string) => {
+export const callAppRecord = async (record: any, appId: number | string) => {
   const fields = await getFields(appId)
   for (let field in fields) {
     const obj = fields[field]

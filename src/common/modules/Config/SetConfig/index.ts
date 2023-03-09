@@ -1,4 +1,4 @@
-export function setConfig(config: PluginConfig) {
+export function setConfig(config: Plugin.Config) {
   const newConfig = { ...config }
   for (let key in config) {
     try {

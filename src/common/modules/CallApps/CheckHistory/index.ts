@@ -1,21 +1,12 @@
 import Swal from 'sweetalert2'
-<<<<<<< HEAD:src/modules/CallApps/CheckHistory/index.ts
-import { getKintoneRestAPIClient } from '../../kintoneRESTAPI'
-import type { KintoneRecord } from '../../../types'
-=======
-import { getFields, getKintoneRestAPIClient, KintoneRecord } from 'common'
->>>>>>> 76c5a3651d5be30dcad36ad189c828ccb58fe26f:src/common/modules/CallApps/CheckHistory/index.ts
+import { getFields, getKintoneRestAPIClient } from 'common'
 import { DELETE_TYPES } from '../enviroment'
-import { checkAppFields } from '..'
 
 const UPDATE_KEY = 'レコード番号'
 
-type BaseRecord = {
-  app: number | string
-  record: KintoneRecord
-}
-
-type UpdateRecord = (BaseRecord & { id: number | string }) | (BaseRecord & { updateKey: { field: string; value: any } })
+type UpdateRecord =
+  | (kintone.Event & { id: number | string })
+  | (kintone.Event & { updateKey: { field: string; value: any } })
 
 const getQuery = (record: any, fieldCd: string) => {
   const field = record[fieldCd]
@@ -26,13 +17,9 @@ const getQuery = (record: any, fieldCd: string) => {
 }
 
 const checkFields = ['企業コード', '日付']
-export const checkCallHistory = async (record: KintoneRecord, appId: number | string) => {
-<<<<<<< HEAD:src/modules/CallApps/CheckHistory/index.ts
-  const fields = await checkAppFields(appId)
-=======
+export const checkCallHistory = async (record: kintone.EventRecord, appId: number | string) => {
   console.log(record)
   const fields = await getFields(appId)
->>>>>>> 76c5a3651d5be30dcad36ad189c828ccb58fe26f:src/common/modules/CallApps/CheckHistory/index.ts
   for (let field in fields) {
     const obj = fields[field]
     if (field in record) {

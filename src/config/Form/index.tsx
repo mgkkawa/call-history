@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, Stack } from '@mui/material'
-import { Controller, SubmitHandler, useForm, useWatch } from 'react-hook-form'
+import { Box, Stack, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
+import { SubmitHandler, useForm, useWatch } from 'react-hook-form'
 import { App } from '@kintone/rest-api-client/lib/client/types/app'
-import { getAppFields, getApps, getConfig, setConfig } from 'common'
+import { getAppFields, getApps, setConfig } from 'common'
+import ControleSelecter, { Item } from './ControleSelecter'
+import classes from './Form.module.css'
+import { getItems } from './method'
 
-export default function Form(props: PluginConfig) {
+export default function Form(props: Plugin.Config) {
   // useForm から必要な関数を取得。
+  // デフォルトは保存済みのプラグイン設定を反映
   const { register, reset, control, handleSubmit } = useForm({
     defaultValues: props,
   })
@@ -14,7 +18,7 @@ export default function Form(props: PluginConfig) {
   const appId = useMemo(() => kintone.app.getId() as number, [])
 
   // コール履歴アプリのID（レコードを飛ばす先のアプリ）
-  const historyAppId = useWatch({ name: 'historyAppId', control })
+  const toAppId = useWatch({ name: 'appId', control })
 
   // 描画フラグ
   const [isReady, setIsReady] = useState(false)
@@ -28,26 +32,57 @@ export default function Form(props: PluginConfig) {
   // コール履歴アプリ内フィールドデータ
   const [toFields, setToFields] = useState<any[]>([])
 
-  // 保存ボタンを推した時の処理
-  const onSubmit: SubmitHandler<PluginConfig> = useCallback(data => {
-    console.log(data)
-    setConfig(data)
-  }, [])
+  // アプリ一覧をItem[]化
+  const appItems = useMemo((): Item[] => {
+    if (!spaceApps.length) return []
+    return spaceApps.map(app => {
+      const item: Item = {
+        key: app.appId,
+        value: app.appId,
+        label: `${app.name} [${app.appId}]`,
+      }
+      return item
+    })
+  }, [spaceApps])
 
-  // 設定の検証ルールを設定
-  const validationRules = useMemo(() => {
-    const NEED_MESSAGE = 'の設定は必須です。'
-    return {
-      historyAppId: {
-        required: 'コール履歴アプリ' + NEED_MESSAGE,
+  // MenuItemに使用するパラメータを設定。
+  const items = useMemo(() => {
+    const RECORD_LABEL = 'レコード番号'
+    const RECORD_CODE = 'RECORD_NUMBER'
+    const DEFAULT_ITEM = [
+      {
+        key: RECORD_LABEL,
+        value: JSON.stringify({
+          code: RECORD_LABEL,
+          type: RECORD_CODE,
+        }),
+        label: `${RECORD_LABEL} [${RECORD_CODE}]`,
       },
-      uniqueKey: {
-        required: 'ユニークキーフィールド' + NEED_MESSAGE,
+    ]
+
+    const thisUniqueItems = [...DEFAULT_ITEM, ...getItems(thisFields, true)]
+    const thisDateItems = getItems(thisFields, false, 'DATE')
+    const toUniqueItems = getItems(toFields, true)
+    const toDateItems = getItems(toFields, false, ['DATE', 'SINGLE_LINE_TEXT'])
+    const result = {
+      unique: {
+        this: thisUniqueItems,
+        to: toUniqueItems,
       },
-      dateField: {
-        reqquired: '日付フィールド' + NEED_MESSAGE,
+      date: {
+        this: thisDateItems,
+        to: toDateItems,
       },
     }
+    console.log(result)
+
+    return result
+  }, [thisFields, toFields])
+
+  // 保存ボタンを押した時の処理
+  const onSubmit: SubmitHandler<Plugin.Config> = useCallback(data => {
+    console.log(data)
+    setConfig(data)
   }, [])
 
   // 初回描画時の処理
@@ -61,78 +96,63 @@ export default function Form(props: PluginConfig) {
 
   // コール履歴アプリIDが設定された際の描画処理
   useEffect(() => {
-    if (historyAppId === '') return
+    if (toAppId === '') return
     async function secondEffect() {
-      setToFields(await getAppFields(historyAppId))
+      setToFields(await getAppFields(toAppId))
       setIsReady(false)
       setIsReady(true)
     }
     secondEffect()
-  }, [historyAppId])
+  }, [toAppId])
 
   return (
-    <Stack component='form' noValidate spacing={2} onSubmit={handleSubmit(onSubmit)}>
-      {/* コール履歴アプリのIDを設定するSelect要素を配置 */}
-      <Controller
-        name='historyAppId'
-        control={control}
-        rules={validationRules.historyAppId}
-        render={({ field, fieldState }) => (
-          <FormControl error={fieldState.invalid}>
-            <InputLabel id='history-app-id-label'>コール履歴アプリ</InputLabel>
-            <Select labelId='history-app-id-label' label='コール履歴アプリ' {...register('historyAppId')} {...field}>
-              {spaceApps.map(app => (
-                <MenuItem key={app.appId} value={app.appId}>{`${app.name} [${app.appId}]`}</MenuItem>
-              ))}
-            </Select>
-            <FormHelperText>{fieldState.error?.message}</FormHelperText>
-          </FormControl>
-        )}
-      />
-      {isReady ? (
-        <React.Fragment>
-          {/* コールアプリ側のユニークキーを配置するコール履歴アプリ側のフィールドを指定する */}
-          <Controller
-            name='uniqueKey'
-            control={control}
-            render={({ field, fieldState }) => (
-              <FormControl error={fieldState.invalid}>
-                <InputLabel id='unique-key-label'>ユニークキーフィールド</InputLabel>
-                <Select labelId='unique-key-label' label='ユニークキーフィールド' {...register('uniqueKey')} {...field}>
-                  {thisFields.map(toField =>
-                    toField.unique ? (
-                      <MenuItem
-                        key={toField.code}
-                        value={toField.code}>{`${toField.label}  [${toField.code}]`}</MenuItem>
-                    ) : null,
-                  )}
-                </Select>
-                <FormHelperText>{fieldState.error?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
-          {/* コール履歴アプリの日付参照フィールドを指定する */}
-          <Controller
-            name='dateField'
-            control={control}
-            render={({ field, fieldState }) => (
-              <FormControl error={fieldState.invalid}>
-                <InputLabel id='date-field-label'>日付フィールド</InputLabel>
-                <Select labelId='date-field-label' label='日付フィールド' {...register('dateField')} {...field}>
-                  {toFields.map(toField =>
-                    toField.type === 'DATE' ? (
-                      <MenuItem
-                        key={toField.code}
-                        value={toField.code}>{`${toField.label}  [${toField.code}]`}</MenuItem>
-                    ) : null,
-                  )}
-                </Select>
-                <FormHelperText>{fieldState.error?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
-        </React.Fragment>
-      ) : null}
-    </Stack>
+    <>
+      <Stack component='form' noValidate spacing={2} onSubmit={handleSubmit(onSubmit)}>
+        {/* コール履歴アプリのIDを設定するSelect要素を配置 */}
+        <ControleSelecter
+          control={control}
+          register={register}
+          name='appId'
+          items={appItems}
+          id='history-app-id-label'
+          label='コール履歴アプリ'
+          desc='コール履歴保存先のアプリを選択してください。'
+        />
+        {isReady ? (
+          <React.Fragment>
+            {/* コールアプリ側のユニークキーが配置されているフィールドを選択する */}
+            <ControleSelecter
+              control={control}
+              register={register}
+              name='unique.this'
+              items={items.unique.this}
+              id='unique-key-label'
+              label='ユニークキーフィールド'
+              desc='ユニークな値が設定されているフィールドを選択してください。'
+            />
+            {/* コールアプリのユニークキーを保存する、コール履歴アプリ側のフィールド設定 */}
+            <ControleSelecter
+              control={control}
+              register={register}
+              name='unique.to'
+              items={items.unique.to}
+              id='unique-key-label'
+              label='ユニークキーフィールド'
+              desc='ユニークな値が設定されているフィールドを選択してください。'
+            />
+            {/* コール履歴アプリの日付参照フィールドを指定する */}
+            <ControleSelecter
+              control={control}
+              register={register}
+              name='date.to'
+              items={items.date.to}
+              id='date-field-label'
+              label='日付フィールド'
+            />
+          </React.Fragment>
+        ) : null}
+      </Stack>
+      <hr className={classes.footerLint} />
+    </>
   )
 }
