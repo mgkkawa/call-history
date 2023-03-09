@@ -21,6 +21,10 @@ module.exports = {
     fallback: {
       path: false,
     },
+    alias: {
+      '@/': path.resolve(__dirname, 'src'),
+      'common': path.resolve(__dirname, 'src', 'common'),
+    },
   },
   module: {
     rules: [

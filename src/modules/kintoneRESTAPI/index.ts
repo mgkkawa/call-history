@@ -1,7 +1,0 @@
-export * from './GetApps'
-export * from './GetCallCount'
-export * from './GetFields'
-export * from './GetKintoneAPIClient'
-export * from './GetLayout'
-export * from './GetSpaceId'
-export * from './kintonType'
